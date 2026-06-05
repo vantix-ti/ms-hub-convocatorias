@@ -1,0 +1,44 @@
+package cl.vantix.mshub.application.usecase;
+
+import cl.vantix.mshub.domain.exception.ResourceNotFoundException;
+import cl.vantix.mshub.domain.exception.UnauthorizedException;
+import cl.vantix.mshub.domain.model.Notificacion;
+import cl.vantix.mshub.domain.model.TipoNotificacion;
+import cl.vantix.mshub.domain.port.in.NotificacionUseCase;
+import cl.vantix.mshub.domain.port.out.NotificacionPersistencePort;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class NotificacionUseCaseImpl implements NotificacionUseCase {
+    private final NotificacionPersistencePort notifPort;
+
+    @Override
+    public List<Notificacion> listarPorUsuario(Long usuarioId) {
+        return notifPort.findByDestinatarioIdOrderByCreadoEnDesc(usuarioId);
+    }
+    @Override @Transactional
+    public void marcarLeida(Long notificacionId, Long usuarioId) {
+        Notificacion n = notifPort.findById(notificacionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notificación no encontrada."));
+        if (!n.getDestinatarioId().equals(usuarioId))
+            throw new UnauthorizedException("Sin permisos.");
+        n.setLeida(true);
+        notifPort.save(n);
+    }
+    @Override @Transactional
+    public void marcarTodasLeidas(Long usuarioId) {
+        List<Notificacion> pendientes = notifPort.findByDestinatarioIdAndLeidaFalse(usuarioId);
+        pendientes.forEach(n -> n.setLeida(true));
+        notifPort.saveAll(pendientes);
+    }
+    @Override @Transactional
+    public Notificacion crear(Long destinatarioId, String titulo, String mensaje, TipoNotificacion tipo) {
+        return notifPort.save(Notificacion.builder()
+                .destinatarioId(destinatarioId).titulo(titulo).mensaje(mensaje)
+                .tipo(tipo).leida(false).build());
+    }
+}

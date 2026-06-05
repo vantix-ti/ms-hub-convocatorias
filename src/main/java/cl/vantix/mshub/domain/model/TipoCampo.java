@@ -1,0 +1,2 @@
+package cl.vantix.mshub.domain.model;
+public enum TipoCampo { TEXTO, TEXTO_LARGO, NUMERO, FECHA, ARCHIVO, LISTA, SELECCION_UNICA, SELECCION_MULTIPLE, RUT, TABLA, TABLA_FIJA, SECCION_TEXTO }
