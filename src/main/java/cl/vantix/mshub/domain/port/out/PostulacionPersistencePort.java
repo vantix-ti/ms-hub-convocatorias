@@ -7,6 +7,7 @@ public interface PostulacionPersistencePort {
     Optional<Postulacion> findById(Long id);
     List<Postulacion> findByPostulanteId(Long postulanteId);
     List<Postulacion> findByConvocatoriaId(Long convocatoriaId);
+    List<Postulacion> findAll();
     Postulacion save(Postulacion postulacion);
     long countByConvocatoriaId(Long convocatoriaId);
 }

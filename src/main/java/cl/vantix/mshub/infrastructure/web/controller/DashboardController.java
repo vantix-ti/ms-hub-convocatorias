@@ -2,6 +2,7 @@ package cl.vantix.mshub.infrastructure.web.controller;
 
 import cl.vantix.mshub.domain.port.in.DashboardUseCase;
 import cl.vantix.mshub.infrastructure.web.dto.response.DashboardResponse;
+import cl.vantix.mshub.infrastructure.web.dto.response.DashboardGlobalResponse;
 import cl.vantix.mshub.infrastructure.web.mapper.WebMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,5 +17,10 @@ public class DashboardController {
     @GetMapping("/convocatoria/{id}") @PreAuthorize("hasAnyRole('ADMIN','REVISOR')")
     public ResponseEntity<DashboardResponse> getDashboard(@PathVariable Long id) {
         return ResponseEntity.ok(mapper.toDashboardResponse(useCase.obtenerDashboard(id)));
+    }
+
+    @GetMapping("/global") @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DashboardGlobalResponse> getDashboardGlobal() {
+        return ResponseEntity.ok(mapper.toDashboardGlobalResponse(useCase.obtenerDashboardGlobal()));
     }
 }

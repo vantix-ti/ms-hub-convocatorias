@@ -31,6 +31,9 @@ public class PostulacionPersistenceAdapter implements PostulacionPersistencePort
     @Override public List<Postulacion> findByConvocatoriaId(Long id) {
         return postulacionRepo.findByConvocatoria_Id(id).stream().map(mapper::toDomain).collect(Collectors.toList());
     }
+    @Override public List<Postulacion> findAll() {
+        return postulacionRepo.findAll().stream().map(mapper::toDomain).collect(Collectors.toList());
+    }
     @Override public long countByConvocatoriaId(Long id) {
         return postulacionRepo.countByConvocatoria_Id(id);
     }

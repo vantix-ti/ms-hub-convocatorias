@@ -110,4 +110,27 @@ public class WebMapper {
                 .promedioGeneral(d.getPromedioGeneral())
                 .postulacionesPorEstado(d.getPostulacionesPorEstado()).build();
     }
+
+    public DashboardGlobalResponse toDashboardGlobalResponse(DashboardGlobal d) {
+        return DashboardGlobalResponse.builder()
+                .convocatoriasActivas(d.getConvocatoriasActivas())
+                .totalPostulaciones(d.getTotalPostulaciones())
+                .revisoresAsignados(d.getRevisoresAsignados())
+                .seleccionados(d.getSeleccionados())
+                .seleccionadosPorcentaje(d.getSeleccionadosPorcentaje())
+                .postulacionesPorEstado(d.getPostulacionesPorEstado())
+                .ultimasPostulaciones(d.getUltimasPostulaciones() == null ? java.util.List.of() :
+                    d.getUltimasPostulaciones().stream().map(u ->
+                        DashboardGlobalResponse.UltimaPostulacionDto.builder()
+                            .id(u.getId()).postulanteNombre(u.getPostulanteNombre())
+                            .convocatoriaTitulo(u.getConvocatoriaTitulo())
+                            .fecha(u.getFecha()).estado(u.getEstado()).build()
+                    ).collect(java.util.stream.Collectors.toList()))
+                .evolucionTemporal(d.getEvolucionTemporal() == null ? java.util.List.of() :
+                    d.getEvolucionTemporal().stream().map(p ->
+                        DashboardGlobalResponse.PuntoTemporalDto.builder()
+                            .fecha(p.getFecha()).enviadas(p.getEnviadas()).creadas(p.getCreadas()).build()
+                    ).collect(java.util.stream.Collectors.toList()))
+                .build();
+    }
 }

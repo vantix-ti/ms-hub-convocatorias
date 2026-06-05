@@ -6,8 +6,9 @@ import cl.vantix.mshub.domain.port.in.DashboardUseCase;
 import cl.vantix.mshub.domain.port.out.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,6 +17,7 @@ public class DashboardUseCaseImpl implements DashboardUseCase {
     private final ConvocatoriaPersistencePort convocatoriaPort;
     private final PostulacionPersistencePort postulacionPort;
     private final EvaluacionPersistencePort evaluacionPort;
+    private final UsuarioPersistencePort usuarioPort;
 
     @Override
     public Dashboard obtenerDashboard(Long convocatoriaId) {
@@ -39,6 +41,84 @@ public class DashboardUseCaseImpl implements DashboardUseCase {
                 .postulacionesNoSeleccionadas(porEstado.getOrDefault("NO_SELECCIONADA", 0L))
                 .promedioGeneral(promedio)
                 .postulacionesPorEstado(porEstado)
+                .build();
+    }
+
+    @Override
+    public DashboardGlobal obtenerDashboardGlobal() {
+        List<Convocatoria> todasConvocatorias = convocatoriaPort.findAll();
+        long convocatoriasActivas = todasConvocatorias.stream()
+                .filter(c -> c.getEstado() == EstadoConvocatoria.PUBLICADA)
+                .count();
+
+        List<Postulacion> todasPostulaciones = postulacionPort.findAll();
+        long totalPostulaciones = todasPostulaciones.size();
+
+        long seleccionados = todasPostulaciones.stream()
+                .filter(p -> p.getEstado() == EstadoPostulacion.SELECCIONADA)
+                .count();
+        double seleccionadosPct = totalPostulaciones > 0
+                ? Math.round((seleccionados * 100.0 / totalPostulaciones) * 10) / 10.0
+                : 0.0;
+
+        Map<String, Long> porEstado = todasPostulaciones.stream()
+                .collect(Collectors.groupingBy(p -> p.getEstado().name(), Collectors.counting()));
+
+        long revisores = usuarioPort.findByRol(Rol.REVISOR).size();
+
+        // Últimas 5 postulaciones (más recientes primero)
+        Map<Long, Convocatoria> convMap = todasConvocatorias.stream()
+                .collect(Collectors.toMap(Convocatoria::getId, c -> c));
+
+        List<DashboardGlobal.UltimaPostulacion> ultimas = todasPostulaciones.stream()
+                .filter(p -> p.getCreadoEn() != null)
+                .sorted(Comparator.comparing(Postulacion::getCreadoEn).reversed())
+                .limit(5)
+                .map(p -> {
+                    String nombrePostulante = usuarioPort.findById(p.getPostulanteId())
+                            .map(u -> u.getNombre() + " " + (u.getApellidoPaterno() != null ? u.getApellidoPaterno() : ""))
+                            .orElse("Desconocido");
+                    String titConv = Optional.ofNullable(convMap.get(p.getConvocatoriaId()))
+                            .map(Convocatoria::getTitulo)
+                            .orElse("Sin convocatoria");
+                    return DashboardGlobal.UltimaPostulacion.builder()
+                            .id(p.getId())
+                            .postulanteNombre(nombrePostulante.trim())
+                            .convocatoriaTitulo(titConv)
+                            .fecha(p.getCreadoEn())
+                            .estado(p.getEstado().name())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        // Evolución temporal: últimos 14 días agrupados por fecha
+        LocalDate hoy = LocalDate.now();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM");
+        List<DashboardGlobal.PuntoTemporal> evolucion = new ArrayList<>();
+        for (int i = 13; i >= 0; i--) {
+            LocalDate dia = hoy.minusDays(i);
+            long creadas = todasPostulaciones.stream()
+                    .filter(p -> p.getCreadoEn() != null && p.getCreadoEn().toLocalDate().equals(dia))
+                    .count();
+            long enviadas = todasPostulaciones.stream()
+                    .filter(p -> p.getEnviadaEn() != null && p.getEnviadaEn().toLocalDate().equals(dia))
+                    .count();
+            evolucion.add(DashboardGlobal.PuntoTemporal.builder()
+                    .fecha(dia.format(fmt))
+                    .creadas(creadas)
+                    .enviadas(enviadas)
+                    .build());
+        }
+
+        return DashboardGlobal.builder()
+                .convocatoriasActivas(convocatoriasActivas)
+                .totalPostulaciones(totalPostulaciones)
+                .revisoresAsignados(revisores)
+                .seleccionados(seleccionados)
+                .seleccionadosPorcentaje(seleccionadosPct)
+                .postulacionesPorEstado(porEstado)
+                .ultimasPostulaciones(ultimas)
+                .evolucionTemporal(evolucion)
                 .build();
     }
 }
