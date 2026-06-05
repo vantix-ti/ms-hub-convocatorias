@@ -3,9 +3,12 @@ package cl.vantix.mshub.application.usecase;
 import cl.vantix.mshub.domain.exception.ResourceNotFoundException;
 import cl.vantix.mshub.domain.exception.UnauthorizedException;
 import cl.vantix.mshub.domain.model.Notificacion;
+import cl.vantix.mshub.domain.model.Rol;
 import cl.vantix.mshub.domain.model.TipoNotificacion;
+import cl.vantix.mshub.domain.model.Usuario;
 import cl.vantix.mshub.domain.port.in.NotificacionUseCase;
 import cl.vantix.mshub.domain.port.out.NotificacionPersistencePort;
+import cl.vantix.mshub.domain.port.out.UsuarioPersistencePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificacionUseCaseImpl implements NotificacionUseCase {
     private final NotificacionPersistencePort notifPort;
+    private final UsuarioPersistencePort usuarioPort;
 
     @Override
     public List<Notificacion> listarPorUsuario(Long usuarioId) {
@@ -44,7 +48,7 @@ public class NotificacionUseCaseImpl implements NotificacionUseCase {
 
     @Override
     public int enviarMasiva(String destinatarios, String titulo, String mensaje) {
-        java.util.List<cl.vantix.mshub.domain.model.Usuario> destinatariosLista;
+        List<Usuario> destinatariosLista;
         if ("TODOS".equalsIgnoreCase(destinatarios)) {
             destinatariosLista = usuarioPort.findAll();
         } else {
@@ -54,8 +58,8 @@ public class NotificacionUseCaseImpl implements NotificacionUseCase {
                 destinatariosLista = usuarioPort.findAll();
             }
         }
-        for (cl.vantix.mshub.domain.model.Usuario u : destinatariosLista) {
-            crear(u.getId(), titulo, mensaje, cl.vantix.mshub.domain.model.TipoNotificacion.SISTEMA);
+        for (Usuario u : destinatariosLista) {
+            crear(u.getId(), titulo, mensaje, TipoNotificacion.SISTEMA);
         }
         return destinatariosLista.size();
     }
