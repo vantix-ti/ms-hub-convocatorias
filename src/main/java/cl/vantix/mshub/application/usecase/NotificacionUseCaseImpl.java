@@ -41,4 +41,22 @@ public class NotificacionUseCaseImpl implements NotificacionUseCase {
                 .destinatarioId(destinatarioId).titulo(titulo).mensaje(mensaje)
                 .tipo(tipo).leida(false).build());
     }
+
+    @Override
+    public int enviarMasiva(String destinatarios, String titulo, String mensaje) {
+        java.util.List<cl.vantix.mshub.domain.model.Usuario> destinatariosLista;
+        if ("TODOS".equalsIgnoreCase(destinatarios)) {
+            destinatariosLista = usuarioPort.findAll();
+        } else {
+            try {
+                destinatariosLista = usuarioPort.findByRol(Rol.valueOf(destinatarios.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                destinatariosLista = usuarioPort.findAll();
+            }
+        }
+        for (cl.vantix.mshub.domain.model.Usuario u : destinatariosLista) {
+            crear(u.getId(), titulo, mensaje, cl.vantix.mshub.domain.model.TipoNotificacion.SISTEMA);
+        }
+        return destinatariosLista.size();
+    }
 }

@@ -2,6 +2,8 @@ package cl.vantix.mshub.infrastructure.web.controller;
 
 import cl.vantix.mshub.domain.port.in.*;
 import cl.vantix.mshub.infrastructure.web.dto.response.NotificacionResponse;
+import cl.vantix.mshub.infrastructure.web.dto.request.MensajeMasivoRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import cl.vantix.mshub.infrastructure.web.mapper.WebMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,5 +39,11 @@ public class NotificacionController {
         Long uid = authUseCase.obtenerPorEmail(ud.getUsername()).getId();
         useCase.marcarTodasLeidas(uid);
         return ResponseEntity.ok(Map.of("mensaje","Todas las notificaciones marcadas como leídas."));
+    }
+
+    @PostMapping("/masiva") @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String,Object>> enviarMasiva(@RequestBody MensajeMasivoRequest req) {
+        int enviadas = useCase.enviarMasiva(req.getDestinatarios(), req.getTitulo(), req.getMensaje());
+        return ResponseEntity.ok(Map.of("mensaje", "Mensajes enviados correctamente.", "total", enviadas));
     }
 }

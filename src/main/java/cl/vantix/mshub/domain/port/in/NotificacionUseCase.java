@@ -8,4 +8,5 @@ public interface NotificacionUseCase {
     void marcarTodasLeidas(Long usuarioId);
     Notificacion crear(Long destinatarioId, String titulo, String mensaje,
                        cl.vantix.mshub.domain.model.TipoNotificacion tipo);
+    int enviarMasiva(String destinatarios, String titulo, String mensaje);
 }
