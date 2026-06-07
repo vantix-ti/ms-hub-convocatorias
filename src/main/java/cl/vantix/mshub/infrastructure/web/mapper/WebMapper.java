@@ -1,11 +1,13 @@
 package cl.vantix.mshub.infrastructure.web.mapper;
 
 import cl.vantix.mshub.domain.model.*;
+import cl.vantix.mshub.domain.port.out.DocumentoAdjuntoPersistencePort;
 import cl.vantix.mshub.infrastructure.web.dto.response.*;
 import org.springframework.stereotype.Component;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class WebMapper {
 
     public UsuarioResponse toUsuarioResponse(Usuario u) {
@@ -17,6 +19,21 @@ public class WebMapper {
                 .roles(u.getRoles().stream().map(Enum::name).collect(Collectors.toSet()))
                 .telefono(u.getTelefono()).activo(u.isActivo())
                 .confirmado(u.isConfirmado()).creadoEn(u.getCreadoEn()).institucionId(u.getInstitucionId()).build();
+    }
+
+    private final DocumentoAdjuntoPersistencePort documentoPort;
+
+    public ConvocatoriaResponse toConvocatoriaResponseWithDocs(Convocatoria c) {
+        java.util.List<ConvocatoriaResponse.DocumentoAdjuntoResponse> docs =
+            documentoPort.findByConvocatoriaId(c.getId()).stream()
+                .map(d -> ConvocatoriaResponse.DocumentoAdjuntoResponse.builder()
+                    .id(d.getId()).nombre(d.getNombre()).descripcion(d.getDescripcion())
+                    .contenido(d.getContenido()).tipoMime(d.getTipoMime())
+                    .tamanio(d.getTamanio()).creadoEn(d.getCreadoEn()).build())
+                .collect(java.util.stream.Collectors.toList());
+        ConvocatoriaResponse r = toConvocatoriaResponse(c);
+        r.setDocumentos(docs);
+        return r;
     }
 
     public ConvocatoriaResponse toConvocatoriaResponse(Convocatoria c) {

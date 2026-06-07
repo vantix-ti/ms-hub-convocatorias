@@ -19,6 +19,18 @@ public class ConvocatoriaResponse {
     private int maxPostulacionesPorUsuario;
     private Set<EtiquetaResponse> etiquetas;
     private List<EtapaResponse> etapas;
+    private List<DocumentoAdjuntoResponse> documentos;
     private LocalDateTime creadoEn;
     private LocalDateTime actualizadoEn;
+
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    public static class DocumentoAdjuntoResponse {
+        private Long id;
+        private String nombre;
+        private String descripcion;
+        private String contenido;
+        private String tipoMime;
+        private Long tamanio;
+        private LocalDateTime creadoEn;
+    }
 }
