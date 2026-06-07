@@ -3,9 +3,11 @@ package cl.vantix.mshub.application.usecase;
 import cl.vantix.mshub.domain.exception.BusinessException;
 import cl.vantix.mshub.domain.exception.ResourceNotFoundException;
 import cl.vantix.mshub.domain.exception.UnauthorizedException;
+import cl.vantix.mshub.domain.model.Institucion;
 import cl.vantix.mshub.domain.model.Rol;
 import cl.vantix.mshub.domain.model.Usuario;
 import cl.vantix.mshub.domain.port.in.AuthUseCase;
+import cl.vantix.mshub.domain.port.out.InstitucionPersistencePort;
 import cl.vantix.mshub.domain.port.out.MailPort;
 import cl.vantix.mshub.domain.port.out.UsuarioPersistencePort;
 import cl.vantix.mshub.infrastructure.security.JwtService;
@@ -26,6 +28,7 @@ public class AuthUseCaseImpl implements AuthUseCase {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final MailPort mailPort;
+    private final InstitucionPersistencePort institucionPort;
 
     @Override
     @Transactional
@@ -42,6 +45,34 @@ public class AuthUseCaseImpl implements AuthUseCase {
                 .confirmado(false).activo(true)
                 .tokenConfirmacion(token)
                 .tokenExpiracion(LocalDateTime.now().plusHours(24))
+                .build();
+        usuarioPort.save(usuario);
+        try { mailPort.sendConfirmacionEmail(email, usuario.getNombreCompleto(), token); }
+        catch (Exception ignored) {}
+    }
+
+    @Override
+    @Transactional
+    public void registerGestor(String nombre, String apellidoPaterno, String apellidoMaterno,
+                                String email, String password, String telefono,
+                                String instNombre, String instRut, String instDireccion,
+                                String instTelefono, String instEmail) {
+        if (usuarioPort.existsByEmail(email))
+            throw new BusinessException("El correo '" + email + "' ya está registrado.");
+        Institucion inst = institucionPort.findByNombre(instNombre)
+                .orElseGet(() -> institucionPort.save(Institucion.builder()
+                        .nombre(instNombre).rut(instRut).direccion(instDireccion)
+                        .telefono(instTelefono).email(instEmail).activo(true).build()));
+        String token = UUID.randomUUID().toString();
+        Usuario usuario = Usuario.builder()
+                .nombre(nombre).apellidoPaterno(apellidoPaterno)
+                .apellidoMaterno(apellidoMaterno).email(email)
+                .password(passwordEncoder.encode(password))
+                .telefono(telefono).roles(Set.of(Rol.GESTOR))
+                .confirmado(false).activo(true)
+                .tokenConfirmacion(token)
+                .tokenExpiracion(LocalDateTime.now().plusHours(24))
+                .institucionId(inst.getId())
                 .build();
         usuarioPort.save(usuario);
         try { mailPort.sendConfirmacionEmail(email, usuario.getNombreCompleto(), token); }
@@ -101,11 +132,9 @@ public class AuthUseCaseImpl implements AuthUseCase {
         usuario.setPassword(passwordEncoder.encode(nuevaPassword));
         usuario.setTokenReset(null);
         usuario.setTokenResetExpiracion(null);
-        // Si la cuenta no estaba confirmada (usuario creado por admin), se activa aquí
         if (!usuario.isConfirmado()) usuario.setConfirmado(true);
         usuarioPort.save(usuario);
     }
-
 
     @Override
     public Usuario obtenerPorEmail(String email) {

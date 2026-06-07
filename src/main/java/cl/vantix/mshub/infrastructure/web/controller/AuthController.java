@@ -25,6 +25,16 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("mensaje","Registro exitoso. Revisa tu correo para confirmar tu cuenta."));
     }
 
+    @PostMapping("/register-gestor")
+    public ResponseEntity<Map<String,String>> registerGestor(@Valid @RequestBody RegisterGestorRequest req) {
+        authUseCase.registerGestor(
+                req.getNombre(), req.getApellidoPaterno(), req.getApellidoMaterno(),
+                req.getEmail(), req.getPassword(), req.getTelefono(),
+                req.getInstNombre(), req.getInstRut(), req.getInstDireccion(),
+                req.getInstTelefono(), req.getInstEmail());
+        return ResponseEntity.ok(Map.of("mensaje","Registro exitoso. Revisa tu correo para confirmar tu cuenta."));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
         String token = authUseCase.login(req.getEmail(), req.getPassword());

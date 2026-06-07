@@ -24,6 +24,7 @@ public class UsuarioPersistenceMapper {
                 .twoFactorEnabled(jpa.isTwoFactorEnabled())
                 .intentosFallidos(jpa.getIntentosFallidos())
                 .bloqueadoHasta(jpa.getBloqueadoHasta())
+                .institucionId(jpa.getInstitucionId())
                 .roles(jpa.getRoles().stream()
                         .map(r -> Rol.valueOf(r.getNombre()))
                         .collect(Collectors.toSet()))
@@ -46,6 +47,7 @@ public class UsuarioPersistenceMapper {
                 .twoFactorEnabled(domain.isTwoFactorEnabled())
                 .intentosFallidos(domain.getIntentosFallidos())
                 .bloqueadoHasta(domain.getBloqueadoHasta())
+                .institucionId(domain.getInstitucionId())
                 .roles(rolesJpa != null ? rolesJpa : new java.util.HashSet<>())
                 .build();
     }

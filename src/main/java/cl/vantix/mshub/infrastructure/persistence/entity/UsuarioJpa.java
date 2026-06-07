@@ -28,6 +28,7 @@ public class UsuarioJpa {
     @Builder.Default private boolean twoFactorEnabled = false;
     @Builder.Default private int intentosFallidos = 0;
     private LocalDateTime bloqueadoHasta;
+    @Column(name = "institucion_id") private Long institucionId;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "usuario_roles",
         joinColumns = @JoinColumn(name = "usuario_id"),

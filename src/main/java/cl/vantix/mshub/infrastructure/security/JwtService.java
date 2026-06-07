@@ -20,13 +20,15 @@ public class JwtService {
     public String generateToken(Usuario usuario) {
         String roles = usuario.getRoles().stream()
                 .map(r -> "ROLE_" + r.name()).collect(Collectors.joining(","));
-        return Jwts.builder()
+        JwtBuilder builder = Jwts.builder()
                 .subject(usuario.getEmail())
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getKey())
-                .compact();
+                .expiration(new Date(System.currentTimeMillis() + expiration));
+        if (usuario.getInstitucionId() != null) {
+            builder.claim("institucionId", usuario.getInstitucionId());
+        }
+        return builder.signWith(getKey()).compact();
     }
 
     public String extractUsername(String token) {

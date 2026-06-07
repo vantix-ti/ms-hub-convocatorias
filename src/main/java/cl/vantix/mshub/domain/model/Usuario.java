@@ -28,6 +28,7 @@ public class Usuario {
     private LocalDateTime actualizadoEn;
 
     public boolean hasRole(Rol rol) { return roles.contains(rol); }
+    private Long institucionId;
     public String getNombreCompleto() {
         return nombre + " " + apellidoPaterno +
                (apellidoMaterno != null ? " " + apellidoMaterno : "");

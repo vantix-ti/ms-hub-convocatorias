@@ -16,7 +16,7 @@ public class WebMapper {
                 .email(u.getEmail())
                 .roles(u.getRoles().stream().map(Enum::name).collect(Collectors.toSet()))
                 .telefono(u.getTelefono()).activo(u.isActivo())
-                .confirmado(u.isConfirmado()).creadoEn(u.getCreadoEn()).build();
+                .confirmado(u.isConfirmado()).creadoEn(u.getCreadoEn()).institucionId(u.getInstitucionId()).build();
     }
 
     public ConvocatoriaResponse toConvocatoriaResponse(Convocatoria c) {
