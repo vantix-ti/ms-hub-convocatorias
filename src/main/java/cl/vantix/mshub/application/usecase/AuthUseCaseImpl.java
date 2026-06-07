@@ -141,4 +141,33 @@ public class AuthUseCaseImpl implements AuthUseCase {
         return usuarioPort.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado."));
     }
+    @Override
+    @Transactional
+    public void registerEmpresa(String nombre, String apellidoPaterno, String apellidoMaterno,
+                                 String email, String password, String telefono,
+                                 String empNombre, String empRut, String empDireccion,
+                                 String empTelefono, String empEmail) {
+        if (usuarioPort.existsByEmail(email))
+            throw new BusinessException("El correo '" + email + "' ya está registrado.");
+        // Crear o reutilizar institución/empresa del postulante
+        Institucion inst = institucionPort.findByNombre(empNombre)
+                .orElseGet(() -> institucionPort.save(Institucion.builder()
+                        .nombre(empNombre).rut(empRut).direccion(empDireccion)
+                        .telefono(empTelefono).email(empEmail).activo(true).build()));
+        String token = UUID.randomUUID().toString();
+        Usuario usuario = Usuario.builder()
+                .nombre(nombre).apellidoPaterno(apellidoPaterno)
+                .apellidoMaterno(apellidoMaterno).email(email)
+                .password(passwordEncoder.encode(password))
+                .telefono(telefono).roles(Set.of(Rol.POSTULANTE))
+                .confirmado(false).activo(true)
+                .tokenConfirmacion(token)
+                .tokenExpiracion(LocalDateTime.now().plusHours(24))
+                .institucionId(inst.getId())
+                .build();
+        usuarioPort.save(usuario);
+        try { mailPort.sendConfirmacionEmail(email, usuario.getNombreCompleto(), token); }
+        catch (Exception ignored) {}
+    }
+
 }

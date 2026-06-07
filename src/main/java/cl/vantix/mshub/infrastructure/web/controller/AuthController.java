@@ -18,13 +18,23 @@ public class AuthController {
     private final JwtService jwtService;
     private final WebMapper mapper;
 
+    /** Registro de postulante persona natural */
     @PostMapping("/register")
     public ResponseEntity<Map<String,String>> register(@Valid @RequestBody RegisterRequest req) {
-        authUseCase.register(req.getNombre(), req.getApellidoPaterno(), req.getApellidoMaterno(),
-                             req.getEmail(), req.getPassword(), req.getTelefono());
+        if (req.getEmpresaNombre() != null && !req.getEmpresaNombre().isBlank()) {
+            // Postulante empresa
+            authUseCase.registerEmpresa(req.getNombre(), req.getApellidoPaterno(), req.getApellidoMaterno(),
+                    req.getEmail(), req.getPassword(), req.getTelefono(),
+                    req.getEmpresaNombre(), req.getEmpresaRut(), req.getEmpresaDireccion(),
+                    req.getEmpresaTelefono(), req.getEmpresaEmail());
+        } else {
+            authUseCase.register(req.getNombre(), req.getApellidoPaterno(), req.getApellidoMaterno(),
+                    req.getEmail(), req.getPassword(), req.getTelefono());
+        }
         return ResponseEntity.ok(Map.of("mensaje","Registro exitoso. Revisa tu correo para confirmar tu cuenta."));
     }
 
+    /** Registro de gestor (admin de una institución) */
     @PostMapping("/register-gestor")
     public ResponseEntity<Map<String,String>> registerGestor(@Valid @RequestBody RegisterGestorRequest req) {
         authUseCase.registerGestor(
