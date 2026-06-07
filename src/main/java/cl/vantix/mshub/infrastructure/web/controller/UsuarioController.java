@@ -39,11 +39,16 @@ public class UsuarioController {
 
     @PostMapping @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioResponse> crear(@RequestBody Map<String,String> body) {
+        Long institucionId = null;
+        if (body.get("institucionId") != null && !body.get("institucionId").isBlank()) {
+            try { institucionId = Long.parseLong(body.get("institucionId")); }
+            catch (NumberFormatException ignored) {}
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toUsuarioResponse(
                 useCase.crearUsuario(body.get("nombre"), body.get("apellidoPaterno"),
                         body.get("apellidoMaterno"), body.get("email"),
                         body.get("telefono"), Rol.valueOf(body.get("rol")),
-                        body.get("password"))));   // null si no se envía → flujo email automático
+                        body.get("password"), institucionId)));
     }
 
     @PutMapping("/me/password")
@@ -52,7 +57,6 @@ public class UsuarioController {
         useCase.cambiarPassword(ud.getUsername(), body.get("passwordActual"), body.get("nuevaPassword"));
         return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada exitosamente."));
     }
-
 
     @GetMapping("/revisores") @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UsuarioResponse>> revisores() {

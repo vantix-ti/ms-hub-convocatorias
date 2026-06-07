@@ -103,4 +103,15 @@ public class UsuarioUseCaseImpl implements UsuarioUseCase {
         u.setRoles(Set.of(rol));
         return usuarioPort.save(u);
     }
+    @Override @Transactional
+    public Usuario crearUsuario(String nombre, String apellidoPaterno, String apellidoMaterno,
+                                String email, String telefono, Rol rol, String password, Long institucionId) {
+        Usuario u = crearUsuario(nombre, apellidoPaterno, apellidoMaterno, email, telefono, rol, password);
+        if (institucionId != null) {
+            u.setInstitucionId(institucionId);
+            u = usuarioPort.save(u);
+        }
+        return u;
+    }
+
 }

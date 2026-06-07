@@ -15,6 +15,8 @@ public interface UsuarioUseCase {
      */
     Usuario crearUsuario(String nombre, String apellidoPaterno, String apellidoMaterno,
                          String email, String telefono, Rol rol, String password);
+    Usuario crearUsuario(String nombre, String apellidoPaterno, String apellidoMaterno,
+                         String email, String telefono, Rol rol, String password, Long institucionId);
 
     Usuario cambiarRol(Long id, Rol rol);
 
