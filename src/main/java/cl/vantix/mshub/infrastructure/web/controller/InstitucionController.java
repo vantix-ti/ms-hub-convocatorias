@@ -28,18 +28,26 @@ public class InstitucionController {
         return ResponseEntity.ok(toResponse(useCase.obtenerPorId(id)));
     }
 
+    /** Endpoint público: obtener institución por slug (sin autenticación) */
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<InstitucionResponse> obtenerPorSlug(@PathVariable String slug) {
+        return ResponseEntity.ok(toResponse(useCase.obtenerPorSlug(slug)));
+    }
+
     @PostMapping @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<InstitucionResponse> crear(@Valid @RequestBody CreateInstitucionRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(toResponse(useCase.crear(req.getNombre(), req.getRut(),
-                        req.getDireccion(), req.getTelefono(), req.getEmail(), req.getLogoUrl())));
+                        req.getDireccion(), req.getTelefono(), req.getEmail(),
+                        req.getLogoUrl(), req.getSlug())));
     }
 
     @PutMapping("/{id}") @PreAuthorize("hasAnyRole('ADMIN','GESTOR')")
     public ResponseEntity<InstitucionResponse> actualizar(@PathVariable Long id,
-                                                           @Valid @RequestBody CreateInstitucionRequest req) {
+                                                          @Valid @RequestBody CreateInstitucionRequest req) {
         return ResponseEntity.ok(toResponse(useCase.actualizar(id, req.getNombre(), req.getRut(),
-                req.getDireccion(), req.getTelefono(), req.getEmail(), req.getLogoUrl(), req.getActivo())));
+                req.getDireccion(), req.getTelefono(), req.getEmail(),
+                req.getLogoUrl(), req.getActivo(), req.getSlug())));
     }
 
     private InstitucionResponse toResponse(Institucion inst) {
@@ -47,6 +55,7 @@ public class InstitucionController {
                 .id(inst.getId()).nombre(inst.getNombre()).rut(inst.getRut())
                 .direccion(inst.getDireccion()).telefono(inst.getTelefono())
                 .email(inst.getEmail()).logoUrl(inst.getLogoUrl())
-                .activo(inst.isActivo()).creadoEn(inst.getCreadoEn()).build();
+                .activo(inst.isActivo()).slug(inst.getSlug())
+                .creadoEn(inst.getCreadoEn()).build();
     }
 }

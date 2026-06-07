@@ -2,6 +2,7 @@ package cl.vantix.mshub.infrastructure.web.controller;
 
 import cl.vantix.mshub.domain.model.ConfiguracionPlataforma;
 import cl.vantix.mshub.domain.port.in.ConfiguracionUseCase;
+import cl.vantix.mshub.domain.port.in.InstitucionUseCase;
 import cl.vantix.mshub.infrastructure.web.dto.response.ConfiguracionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 public class ConfiguracionController {
 
     private final ConfiguracionUseCase useCase;
+    private final InstitucionUseCase institucionUseCase;
 
     @GetMapping("/{institucionId}") @PreAuthorize("hasAnyRole('ADMIN','GESTOR')")
     public ResponseEntity<ConfiguracionResponse> obtener(@PathVariable Long institucionId) {
@@ -32,5 +34,17 @@ public class ConfiguracionController {
                         c -> c.getValor() != null ? c.getValor() : ""));
         return ResponseEntity.ok(ConfiguracionResponse.builder()
                 .institucionId(institucionId).valores(updated).build());
+    }
+
+    /** Endpoint público: obtener configuración por slug de institución (sin autenticación) */
+    @GetMapping("/public/{slug}")
+    public ResponseEntity<ConfiguracionResponse> obtenerPublico(@PathVariable String slug) {
+        Long instId = institucionUseCase.obtenerPorSlug(slug).getId();
+        Map<String, String> valores = useCase.obtenerPorInstitucion(instId)
+                .stream().collect(Collectors.toMap(
+                    cl.vantix.mshub.domain.model.ConfiguracionPlataforma::getClave,
+                    c2 -> c2.getValor() != null ? c2.getValor() : ""));
+        return ResponseEntity.ok(ConfiguracionResponse.builder()
+                .institucionId(instId).valores(valores).build());
     }
 }

@@ -18,6 +18,7 @@ public class InstitucionJpa {
     @Column(length = 50) private String telefono;
     @Column(length = 255) private String email;
     @Column(columnDefinition = "TEXT") private String logoUrl;
+    @Column(length = 100, unique = true) private String slug;
     @Column(nullable = false) @Builder.Default private boolean activo = true;
     @CreationTimestamp @Column(updatable = false) private LocalDateTime creadoEn;
     @UpdateTimestamp private LocalDateTime actualizadoEn;

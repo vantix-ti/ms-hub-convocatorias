@@ -10,4 +10,5 @@ public interface InstitucionPersistencePort {
     Optional<Institucion> findByNombre(String nombre);
     List<Institucion> findAll();
     boolean existsByRut(String rut);
+    java.util.Optional<Institucion> findBySlug(String slug);
 }

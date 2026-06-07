@@ -12,4 +12,5 @@ public class CreateInstitucionRequest {
     @Email private String email;
     private String logoUrl;
     private Boolean activo;
+    private String slug;
 }

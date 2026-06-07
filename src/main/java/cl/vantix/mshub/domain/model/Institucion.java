@@ -12,6 +12,7 @@ public class Institucion {
     private String telefono;
     private String email;
     private String logoUrl;
+    private String slug;
     private boolean activo;
     private LocalDateTime creadoEn;
     private LocalDateTime actualizadoEn;

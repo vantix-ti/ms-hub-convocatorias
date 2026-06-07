@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface InstitucionJpaRepository extends JpaRepository<InstitucionJpa, Long> {
     Optional<InstitucionJpa> findByNombre(String nombre);
     boolean existsByRut(String rut);
+    java.util.Optional<InstitucionJpa> findBySlug(String slug);
 }

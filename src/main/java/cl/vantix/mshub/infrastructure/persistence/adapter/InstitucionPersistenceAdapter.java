@@ -40,7 +40,7 @@ public class InstitucionPersistenceAdapter implements InstitucionPersistencePort
                 .id(inst.getId()).nombre(inst.getNombre()).rut(inst.getRut())
                 .direccion(inst.getDireccion()).telefono(inst.getTelefono())
                 .email(inst.getEmail()).logoUrl(inst.getLogoUrl())
-                .activo(inst.isActivo()).build();
+                .activo(inst.isActivo()).slug(inst.getSlug()).build();
     }
 
     private Institucion toDomain(InstitucionJpa jpa) {
@@ -48,8 +48,12 @@ public class InstitucionPersistenceAdapter implements InstitucionPersistencePort
                 .id(jpa.getId()).nombre(jpa.getNombre()).rut(jpa.getRut())
                 .direccion(jpa.getDireccion()).telefono(jpa.getTelefono())
                 .email(jpa.getEmail()).logoUrl(jpa.getLogoUrl())
-                .activo(jpa.isActivo())
+                .activo(jpa.isActivo()).slug(jpa.getSlug())
                 .creadoEn(jpa.getCreadoEn()).actualizadoEn(jpa.getActualizadoEn())
                 .build();
+    }
+    @Override
+    public java.util.Optional<Institucion> findBySlug(String slug) {
+        return repo.findBySlug(slug).map(this::toDomain);
     }
 }

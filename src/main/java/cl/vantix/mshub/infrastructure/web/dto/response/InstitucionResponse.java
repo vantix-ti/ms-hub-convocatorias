@@ -13,5 +13,6 @@ public class InstitucionResponse {
     private String email;
     private String logoUrl;
     private boolean activo;
+    private String slug;
     private LocalDateTime creadoEn;
 }
