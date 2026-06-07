@@ -11,4 +11,5 @@ public class CreateInstitucionRequest {
     private String telefono;
     @Email private String email;
     private String logoUrl;
+    private Boolean activo;
 }

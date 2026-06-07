@@ -39,7 +39,7 @@ public class InstitucionController {
     public ResponseEntity<InstitucionResponse> actualizar(@PathVariable Long id,
                                                            @Valid @RequestBody CreateInstitucionRequest req) {
         return ResponseEntity.ok(toResponse(useCase.actualizar(id, req.getNombre(), req.getRut(),
-                req.getDireccion(), req.getTelefono(), req.getEmail(), req.getLogoUrl())));
+                req.getDireccion(), req.getTelefono(), req.getEmail(), req.getLogoUrl(), req.getActivo())));
     }
 
     private InstitucionResponse toResponse(Institucion inst) {

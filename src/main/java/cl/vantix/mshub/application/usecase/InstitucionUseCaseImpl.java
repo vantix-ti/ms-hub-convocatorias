@@ -28,7 +28,7 @@ public class InstitucionUseCaseImpl implements InstitucionUseCase {
 
     @Override @Transactional
     public Institucion actualizar(Long id, String nombre, String rut, String direccion,
-                                  String telefono, String email, String logoUrl) {
+                                  String telefono, String email, String logoUrl, Boolean activo) {
         Institucion inst = port.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Institución no encontrada."));
         inst.setNombre(nombre);
@@ -37,6 +37,7 @@ public class InstitucionUseCaseImpl implements InstitucionUseCase {
         inst.setTelefono(telefono);
         inst.setEmail(email);
         inst.setLogoUrl(logoUrl);
+        if (activo != null) inst.setActivo(activo);
         return port.save(inst);
     }
 
