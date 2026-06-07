@@ -51,4 +51,10 @@ public class UsuarioPersistenceAdapter implements UsuarioPersistencePort {
         UsuarioJpa jpa = mapper.toJpa(usuario, rolesJpa);
         return mapper.toDomain(usuarioRepo.save(jpa));
     }
+
+    @Override
+    public List<Usuario> findByInstitucionId(Long institucionId) {
+        return usuarioRepo.findByInstitucionId(institucionId).stream()
+                .map(mapper::toDomain).collect(Collectors.toList());
+    }
 }

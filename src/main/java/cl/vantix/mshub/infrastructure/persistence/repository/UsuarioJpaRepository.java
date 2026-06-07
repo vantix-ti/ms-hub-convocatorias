@@ -11,4 +11,5 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioJpa, Long> {
     Optional<UsuarioJpa> findByTokenReset(String token);
     boolean existsByEmail(String email);
     List<UsuarioJpa> findByRoles_Nombre(String rolNombre);
+    List<UsuarioJpa> findByInstitucionId(Long institucionId);
 }

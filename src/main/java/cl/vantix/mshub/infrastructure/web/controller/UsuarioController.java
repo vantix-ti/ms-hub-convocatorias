@@ -31,11 +31,25 @@ public class UsuarioController {
                 body.get("apellidoMaterno"), body.get("telefono"))));
     }
 
-    /** ADMIN y GESTOR pueden listar usuarios */
+    /**
+     * Listar usuarios:
+     * - ADMIN (Vantix): ve todos los usuarios de todas las instituciones.
+     * - GESTOR: solo ve los usuarios de su propia institución.
+     */
     @GetMapping @PreAuthorize("hasAnyRole('ADMIN','GESTOR')")
-    public ResponseEntity<List<UsuarioResponse>> listarTodos() {
-        return ResponseEntity.ok(useCase.listarTodos().stream()
-                .map(mapper::toUsuarioResponse).collect(Collectors.toList()));
+    public ResponseEntity<List<UsuarioResponse>> listarTodos(@AuthenticationPrincipal UserDetails ud) {
+        boolean isGestor = ud.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_GESTOR"));
+        List<UsuarioResponse> resultado;
+        if (isGestor) {
+            Long instId = useCase.obtenerPorEmail(ud.getUsername()).getInstitucionId();
+            resultado = (instId != null)
+                    ? useCase.listarPorInstitucion(instId).stream().map(mapper::toUsuarioResponse).collect(Collectors.toList())
+                    : List.of();
+        } else {
+            resultado = useCase.listarTodos().stream().map(mapper::toUsuarioResponse).collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     /**

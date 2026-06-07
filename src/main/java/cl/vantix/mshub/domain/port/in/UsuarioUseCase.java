@@ -9,6 +9,7 @@ public interface UsuarioUseCase {
                              String apellidoMaterno, String telefono);
     List<Usuario> listarPorRol(Rol rol);
     List<Usuario> listarTodos();
+    List<Usuario> listarPorInstitucion(Long institucionId);
     /**
      * @param password null/vacío → contraseña automática + email de activación (confirmado=false).
      *                 Con valor  → contraseña definitiva, cuenta activa de inmediato (confirmado=true).

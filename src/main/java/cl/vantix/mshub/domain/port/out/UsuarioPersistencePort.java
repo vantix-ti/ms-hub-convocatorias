@@ -11,6 +11,7 @@ public interface UsuarioPersistencePort {
     Optional<Usuario> findByTokenReset(String token);
     List<Usuario> findByRol(Rol rol);
     List<Usuario> findAll();
+    List<Usuario> findByInstitucionId(Long institucionId);
     Usuario save(Usuario usuario);
     boolean existsByEmail(String email);
 }

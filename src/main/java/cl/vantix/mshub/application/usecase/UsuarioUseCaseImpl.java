@@ -44,6 +44,11 @@ public class UsuarioUseCaseImpl implements UsuarioUseCase {
     @Override
     public List<Usuario> listarTodos() { return usuarioPort.findAll(); }
 
+    @Override
+    public List<Usuario> listarPorInstitucion(Long institucionId) {
+        return usuarioPort.findByInstitucionId(institucionId);
+    }
+
     @Override @Transactional
     public void cambiarPassword(String email, String passwordActual, String nuevaPassword) {
         Usuario u = obtenerPorEmail(email);
