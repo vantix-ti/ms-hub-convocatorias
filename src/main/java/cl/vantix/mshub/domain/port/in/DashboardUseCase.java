@@ -5,4 +5,5 @@ import cl.vantix.mshub.domain.model.DashboardGlobal;
 public interface DashboardUseCase {
     Dashboard obtenerDashboard(Long convocatoriaId);
     DashboardGlobal obtenerDashboardGlobal();
+    DashboardGlobal obtenerDashboardPorInstitucion(Long institucionId);
 }
