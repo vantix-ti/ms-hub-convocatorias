@@ -56,9 +56,10 @@ public class MailAdapter implements MailPort {
 
     private void send(String to, String subject, String html) {
         try {
+            String sender = (from != null && !from.isBlank()) ? from : "noreply@hub-convocatorias.cl";
             MimeMessage msg = mailSender.createMimeMessage();
             MimeMessageHelper h = new MimeMessageHelper(msg, true, "UTF-8");
-            h.setFrom(from); h.setTo(to); h.setSubject(subject); h.setText(html, true);
+            h.setFrom(sender); h.setTo(to); h.setSubject(subject); h.setText(html, true);
             mailSender.send(msg);
         } catch (Exception e) { log.warn("Error al enviar email a {}: {}", to, e.getMessage()); }
     }
