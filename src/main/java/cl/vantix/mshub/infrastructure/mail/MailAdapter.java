@@ -18,14 +18,14 @@ public class MailAdapter implements MailPort {
 
     @Override
     public void sendConfirmacionEmail(String to, String nombre, String token) {
-        String link = appUrl + "/confirmar-email?token=" + token;
+        String link = appUrl + "/auth/confirmar-email?token=" + token;
         send(to, "Confirma tu cuenta — Hub Convocatorias",
              "<h2>Hola, " + nombre + "</h2><p>Confirma tu cuenta: <a href='" + link + "'>Confirmar</a></p>");
     }
 
     @Override
     public void sendResetPasswordEmail(String to, String nombre, String token) {
-        String link = appUrl + "/reset-password?token=" + token;
+        String link = appUrl + "/auth/reset-password?token=" + token;
         send(to, "Restablecer contraseña — Hub Convocatorias",
              "<h2>Hola, " + nombre + "</h2><p>Restablecer: <a href='" + link + "'>Clic aquí</a></p>");
     }
@@ -37,7 +37,7 @@ public class MailAdapter implements MailPort {
 
     @Override
     public void sendBienvenidaAdminEmail(String to, String nombre, String token) {
-        String link = appUrl + "/reset-password?token=" + token;
+        String link = appUrl + "/auth/reset-password?token=" + token;
         String html =
                 "<div style='font-family:sans-serif;max-width:520px;margin:0 auto;'>" +
                         "<h2 style='color:#337BD9;'>Bienvenido/a a Hub Convocatorias</h2>" +
